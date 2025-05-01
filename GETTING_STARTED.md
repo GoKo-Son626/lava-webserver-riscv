@@ -169,7 +169,7 @@ lava-server manage devices add \
 sudo lava-server manage devices update --health UNKNOWN qemu01
 ```
 
-Now you need to create a device dictionary with file name same as the device name which you just added in `/etc/lava-server/dispatcher-config/devices` as follows.
+Now you need to create a device dictionary with file name same as the device name which you just added as `/etc/lava-server/dispatcher-config/devices/qemu01.jinja2` as follows.
 
 ```
 {% extends "qemu.jinja2" %}
