@@ -37,6 +37,64 @@ All the scripts are present in [arduino](/arduino/) directory. For this setup, i
 
 2 directories, 3 files
 ```
+### Adding Raspberry Pi 4 Model B in LAVA worker
+
+The process of adding the device is same as was for QEMU. 
+
+First create a device type with following command in the LAVA server.
+
+```
+lava-server manage devices add --device-type raspberry-pi     --worker debian-12-bookworm  rpi-4-1
+```
+
+Then create add a device to the device-type using following command.
+
+```
+sudo lava-server manage devices add --device-type raspberry-pi --worker debian-12-bookworm rpi-4-1
+sudo lava-server manage devices update --health UNKNOWN rpi-4-1
+```
+Add the raspberry pi device dictionary in `/etc/lava-server/dispatcher-config/devices/` directory with following content.
+
+```
+{% extends 'bcm2711-rpi-4-b.jinja2' %}
+{% set connection_list = ['uart0']%}
+{% set connection_commands = {'uart0': 'telnet localhost 5000'}%}
+{% set connection_tags = {'uart0': ['primary','telnet']}%}
+{% set power_off_command = '/lava-shared/rpi-4-reset/rpi-4-reset.sh'  %}
+{% set hard_reset_command = '/lava-shared/rpi-4-reset/rpi-4-reset.sh' %}
+{% set power_on_command = '/lava-shared/rpi-4-reset/rpi-4-reset.sh' %}
+```
+
+Before testing this setup there is another important step that you need to take care of. The LAVA worker cannot access the device directly. It needs `ser2net` which is NECESSARY for it to detect connections and connect to them. `ser2net` should be automatically installed with lava-worker.
+
+Add the following block in ser2net for raspberry pi device which you just added.
+
+```
+connection: &raspberrypi_usb0
+    accepter: tcp,localhost,5000 
+    enable: on                 
+    options:
+      banner: *banner
+      kickolduser: true
+      telnet-brk-on-sync: true
+    connector: serialdev,
+               /dev/ttyUSB1,
+               115200n81,local
+```
+
+Restart the `ser2net.service`
+
+```
+sudo systemctl restart ser2net.service
+```
+
+You must change the `/dev/ttyUSB1` to the port where your device is connected. Usually, Linux adds the device in numerically ascending order so if there is nothing plugged in your laptop, connecting a raspberry pi 4 model b will add it to `/dev/ttyUSB0`, if there is one device already  connected and you plug it, it will become `/dev/ttyUSB1` and so on.
+
+### Connecting the infrastructure
+
+Now that everything is added, you need to make the cable connections. Connect the raspberry pi 4b with laptop through USB port. Connect the A0 pin of arduino with the RUN pin of raspberry pi 4 model b, the GND pin of arduino to GND of raspberry pi 4b. Connect the Serial-to-USB adapter with raspberry pi 4b and connect it with your laptop/machine in USB port.
+
+The whole set up looks something as follows for me.
 
 
 
