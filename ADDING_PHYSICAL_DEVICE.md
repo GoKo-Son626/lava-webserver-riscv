@@ -1,6 +1,46 @@
 # Adding the First Device
 
-For this document, StarFive VisionFive 2 will be added to the setup.
+For this document, StarFive VisionFive 2 will be added to the setup. But first off we will try it out with device which is already available in LAVA, just to check that all the parts in infrastructure are working.
+
+## Adding Raspberry Pi 4 Model B
+
+I have a raspberry pi 4b so I will integrate that for this tutorial.
+
+I do not have a PDU at the time of making this documentation. Luckily, the RUN pin on the raspberry pi 4b can be used to safely restart the raspberry pi 4b and thats all I need.
+
+For raspberry pi 5, I have following equipment.
+
+1. A USB-to-serial adapter
+2. Some jumper cables
+3. An arduino nano
+
+This is a cheap infrastructure as compared to a PDU, rack etc. for testing.
+
+### Configuring the arduino
+
+Since LAVA expects a command that can be run in the Linux in which it is running for reboot/power on/power off, so we will have to use arduino through command line. For that, you must install `arduino-cli` (I have added arduino-cli compiled for x86 in [arduino](/arduino/) folder ot this repository)
+
+Once that is done, you need to add a shell script that can compile and flash the arduino code on the arduino nano.
+
+The RUN pin of raspberry pi 4 model b is active low. Keeping it low for 200ms is enough to safely reboot the raspberry pi 4b. 
+
+Here pin A0 of arduino is used to pull it low. But make sure to keep it high after the board is reset otherwise the reboot will not complete.
+
+All the scripts are present in [arduino](/arduino/) directory. For this setup, it is better to copy the contents of [arduino](/arduino/) to a direcotry inside the root directory and then give it full permission for every user so that the setup does not fail due to lack of permissions. My directory tree looks as follows.
+
+```
+/lava-shared
+├── /lava-shared/arduino-cli
+└── /lava-shared/rpi-4-reset
+    ├── /lava-shared/rpi-4-reset/rpi-4-reset.ino
+    └── /lava-shared/rpi-4-reset/rpi-4-reset.sh
+
+2 directories, 3 files
+```
+
+
+
+## Adding VisionFive 2
 
 I have
 
