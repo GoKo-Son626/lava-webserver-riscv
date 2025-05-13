@@ -16,6 +16,12 @@ For raspberry pi 5, I have following equipment.
 
 This is a cheap infrastructure as compared to a PDU, rack etc. for testing.
 
+Connect the RUN pin of the Raspberry pi 5 with the pin A0 of the arduino nano. Connect the ground of the raspberry pi 5 with the ground of Arduino nano.
+
+Connect the serial adapter with raspberry pi according to suitable connections of jumper wire (i.e. TX of raspberry pi 5 with RX of serial adapter and RX of serial adapter with TX of raspberry pi 5 and GND to GND).
+
+
+
 ### Configuring the arduino
 
 Since LAVA expects a command that can be run in the Linux in which it is running for reboot/power on/power off, so we will have to use arduino through command line. For that, you must install `arduino-cli` (I have added arduino-cli compiled for x86 in [arduino](/arduino/) folder ot this repository)
@@ -25,8 +31,6 @@ Once that is done, you need to add a shell script that can compile and flash the
 The RUN pin of raspberry pi 4 model b is active low. Keeping it low for 200ms is enough to safely reboot the raspberry pi 4b. 
 
 Here pin A0 of arduino is used to pull it low. But make sure to keep it high after the board is reset otherwise the reboot will not complete.
-
-All the scripts are present in [arduino](/arduino/) directory. For this setup, it is better to copy the contents of [arduino](/arduino/) to a direcotry inside the root directory and then give it full permission for every user so that the setup does not fail due to lack of permissions. My directory tree looks as follows.
 
 ```
 /lava-shared
@@ -96,6 +100,51 @@ Now that everything is added, you need to make the cable connections. Connect th
 
 The whole set up looks something as follows for me.
 
+![Arduino Connection](/assets/IMG_20250512_203639.jpg)
+
+### Submitting the job
+
+You can submit the following Raspberry Pi 5 job for general connection check.
+
+
+```
+device_type: raspberry-pi
+job_name: simple-rpi-login-test-v3 # Iterated name for clarity
+metadata:
+  build_id: simple-test-build-v3
+  job: simple-rpi-login-test-v3
+  retries: 3
+
+context:
+  kernel_start_message: "" # This was a key fix, keep it.
+
+priority: medium
+timeouts:
+  job:
+    minutes: 5
+  action:
+    minutes: 2 # Default for actions unless overridden
+  actions:
+    power-off:
+      seconds: 30
+visibility: public
+
+actions:
+  - boot:
+      method: minimal
+      connection: serial
+      auto_login:
+        login_prompt: 'login:'
+        username: raspy
+        password_prompt: 'Password:'
+        password: ILikeraspberry
+      prompts:
+        # This regular expression will match your shell prompt even with
+        # leading ANSI escape codes like [?2004h
+        - '.*raspy@rasp4-1:~\$'
+      timeout:
+        minutes: 2 # Or 3 if boot/login is a bit slow
+```
 
 
 ## Adding VisionFive 2
