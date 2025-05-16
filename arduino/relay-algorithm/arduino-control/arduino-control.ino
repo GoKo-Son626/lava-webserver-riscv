@@ -1,4 +1,4 @@
-/* For turning on relay 1, send the command `sudo echo -ne "SET 2 0\n" > /dev/ttyACM0` through the terminal
+/* For turning on relay 1, send the command `echo "SET 2 0" > /dev/ttyACM0` through the terminal
 
 Relay and pin connections:
 
