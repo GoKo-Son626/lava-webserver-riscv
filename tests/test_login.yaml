@@ -1,0 +1,38 @@
+# This job checks the basic connection. Replace the username and password with the username and password of your linux
+
+device_type: raspberry-pi
+job_name: simple-rpi-login-test-v3 # Iterated name for clarity
+metadata:
+  build_id: simple-test-build-v3
+  job: simple-rpi-login-test-v3
+  retries: 3
+
+context:
+  kernel_start_message: "" # This was a key fix, keep it.
+
+priority: medium
+timeouts:
+  job:
+    minutes: 5
+  action:
+    minutes: 2 # Default for actions unless overridden
+  actions:
+    power-off:
+      seconds: 30
+visibility: public
+
+actions:
+  - boot:
+      method: minimal
+      connection: serial
+      auto_login:
+        login_prompt: 'login:'
+        username: raspy
+        password_prompt: 'Password:'
+        password: ILikeraspberry
+      prompts:
+        # This regular expression will match your shell prompt even with
+        # leading ANSI escape codes like [?2004h
+        - '.*raspy@rasp4-1:~\$'
+      timeout:
+        minutes: 2 # Or 3 if boot/login is a bit slow
