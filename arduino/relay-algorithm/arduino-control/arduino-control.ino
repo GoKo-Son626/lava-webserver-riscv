@@ -1,4 +1,7 @@
-/* For turning on relay 1, send the command `echo "SET 2 0" > /dev/ttyACM0` through the terminal
+/* 
+IMPORTANT: Make sure to cut the copper trace in the RESET_ON terminals on arduino uno. This will cause the arduino uno to not reboot when something is passed to arduino. The drawback is that you will have to press the reboot button every time you flash the code.
+
+Example Usage: For turning on relay 1, send the command `echo "SET 2 0" > /dev/ttyACM0` through the terminal
 
 Relay and pin connections:
 
