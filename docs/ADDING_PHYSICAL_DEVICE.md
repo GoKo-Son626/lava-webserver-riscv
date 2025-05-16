@@ -104,7 +104,7 @@ The whole set up looks something as follows for me.
 
 ### Submitting the job
 
-You can submit the following Raspberry Pi 5 job for general connection check.
+You can submit the following Raspberry Pi 4 model b job for general connection check.
 
 
 ```
