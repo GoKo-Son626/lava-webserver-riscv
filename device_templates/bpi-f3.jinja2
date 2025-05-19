@@ -1,0 +1,8 @@
+{% extends 'base-uboot.jinja2' %}
+{% set connection_list = ['uart0'] %}
+{% set connection_commands = {'uart0': 'telnet localhost 5000'} %}
+{% set connection_tags = {'uart0': ['primary','telnet']} %}
+
+{% set power_off_command = 'bash -c "echo SET 2 1 > /dev/ttyACM0"' %}
+{% set power_on_command  = 'bash -c "echo SET 2 0 > /dev/ttyACM0"' %}
+{% set hard_reset_command = 'bash -c "echo SET 2 1 > /dev/ttyACM0; sleep 3; echo SET 2 0 > /dev/ttyACM0"' %

@@ -1,0 +1,7 @@
+{% extends 'bcm2711-rpi-4-b.jinja2' %}
+{% set connection_list = ['uart0']%}
+{% set connection_commands = {'uart0': 'telnet localhost 5000'}%}
+{% set connection_tags = {'uart0': ['primary','telnet']}%}
+{% set power_off_command = '/lava-shared/rpi-4-reset/rpi-4-reset.sh'  %}
+{% set hard_reset_command = '/lava-shared/rpi-4-reset/rpi-4-reset.sh' %}
+{% set power_on_command = '/lava-shared/rpi-4-reset/rpi-4-reset.sh' %}
