@@ -3,6 +3,12 @@
 {% set connection_commands = {'uart0': 'telnet localhost 5000'} %}
 {% set connection_tags = {'uart0': ['primary','telnet']} %}
 
-{% set power_off_command = 'bash -c "echo SET 2 1 > /dev/ttyACM0"' %}
-{% set power_on_command  = 'bash -c "echo SET 2 0 > /dev/ttyACM0"' %}
-{% set hard_reset_command = 'bash -c "echo SET 2 1 > /dev/ttyACM0; sleep 3; echo SET 2 0 > /dev/ttyACM0"' %
+{% set power_off_command = 'python3 /lava-pdu/power_switch.py false' %}
+{% set power_on_command  = 'python3 /lava-pdu/power_switch.py false' %}
+{% set hard_reset_command = "sh -c 'python3 /lava-pdu/power_switch.py false; sleep 3; python3 /lava-pdu/power_switch.py true'" %}
+
+{% set flasher_deploy_commands = ['python3 /lava-pdu/power_switch.py false',
+                                  'sleep 5',
+                                  'python3 /lava-pdu/power_switch.py true',
+                                  'sleep 10',
+                                  'bash -c "sz -Y --ymodem "{IMAGE}" < /dev/ttyUSB0 > /dev/ttyUSB0"'] %}
