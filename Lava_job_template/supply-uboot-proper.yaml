@@ -1,0 +1,85 @@
+# LAVA Job Definition: Flash uboot-opensbi.itb via UART YMODEM
+
+# ====================================================================
+# Job Metadata
+# ====================================================================
+
+job_name: 3 - Flash of bootloader on SD card using uuu - u-boot only (health-check)
+device_type: banana-pi-f3 # This must match the 'device_type' defined in your device dictionary
+timeouts:
+  job:
+    minutes: 12 # Overall job timeout
+visibility: public # Or 'private' if you prefer
+
+# ====================================================================
+# LAVA Actions
+# ====================================================================
+actions:
+  # 1. Deploy the .itb image (LAVA downloads it to the dispatcher's temp directory)
+  - deploy:
+      timeout:
+        minutes: 7
+      to: downloads # Or 'tmpfs'. 'download' is often more explicit.
+      images:
+        image: # Name for the image
+          url: file:///uboot-opensbi_buildroot.itb # 
+        uImage:
+          url: https://github.com/alitariq4589/k1-kernelci-setup/blob/main/images/uImage-bianbu
+        dtb:
+          url: https://github.com/alitariq4589/k1-kernelci-setup/blob/main/images/k1-x_deb1_cloud_v.dtb
+        ramdisk:
+          url: https://github.com/alitariq4589/k1-kernelci-setup/blob/main/images/initramfs-generic.img
+        rootfs:
+          url: http://github.com/alitariq4589/k1-kernelci-setup/releases/tag/buildroot/rootfs.ext2
+  - deploy:
+      timeout:
+        minutes: 10
+      to: flasher # Or 'tmpfs'. 'download' is often more explicit.
+      images:
+        image: # Name for the boot image
+          url: downloads://uboot-opensbi_buildroot.itb
+
+  # 2. Boot the device and perform the UART YMODEM flash
+  - boot:
+       method: u-boot
+       transfer_overlay:
+          download_command: cd /tmp ; wget
+          unpack_command: none
+       commands:
+       - "setenv ipaddr 192.168.2.5"
+       - "setenv serverip 192.168.2.2"
+       - "setenv netmask 255.255.255.0"
+       - "setenv gatewayip 192.168.2.2"
+       - "setenv dtb_addr 0x31000000"
+       - "setenv ramdisk_addr 0x21000000"
+       - "setenv fdt_high 0xffffffffffffffff"
+       - "setenv kernel_addr_r 0x11000000"
+       - "setenv rootfs_path /nfsroot/rootfs"
+       - "setenv bootfs_path /nfsroot/bootfs"
+       - "setenv rootpath /nfsroot/rootfs"
+       - "setenv console ttyS0,115200"
+       - "setenv dtb_name k1-x_deb1_cloud_v.dtb"
+       - "setenv ramdisk_name initramfs-generic.img"
+       - "setenv knl_name uImage-bianbu"
+       - "workqueue.default_affinity_scope=system"
+       - "commonargs=setenv bootargs ${console}  earlyprintk quiet splash plymouth.ignore-serial-consoles plymouth.prefer-fbcon clk_ignore_unused swiotlb=65536 workqueue.default_affinity_scope=${workqueue.default_affinity_scope}"
+       - "setenv get_kernel 'echo \"Loading kernel from NFS...\"; nfs ${kernel_addr_r} ${serverip}:${bootfs_path}/${knl_name}'"
+       - "setenv get_dtb 'echo \"Loading dtb from NFS...\"; nfs ${dtb_addr} ${serverip}:${bootfs_path}/${dtb_name}'"
+       - "setenv get_ramdisk 'nfs ${ramdisk_addr} ${serverip}:${bootfs_path}/${ramdisk_name}; setenv ramdisk_size ${filesize}; setenv ramdisk_combo ${ramdisk_addr}:${ramdisk_size}'"
+       - "setenv set_boot_args 'setenv bootargs \"${bootargs}\" root=/dev/nfs nfsroot=${serverip}:${rootfs_path} bootfs=${serverip}:${bootfs_path} rootpath=/ ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}::${netdev}:off noipath'"
+       - "setenv start_kernel 'fdt addr ${dtb_addr}; if fdt list /; then bootm ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr}; else booti ${kernel_addr_r} ${ramdisk_combo} ${dtb_addr}; fi;'"
+       - "setenv nfs_boot 'echo \"Try to boot from NFS ...\"; run commonargs; run set_boot_args; run get_kernel; run get_dtb; run get_ramdisk; run start_kernel; echo \"########### boot kernel failed from NFS, check your boot config #############\"'"
+       - "fdt addr ${dtb_addr}"
+       - "run nfs_boot"
+
+       auto_login: 
+          login_prompt: 'Bianbu login:'
+          username: 'root'
+          password: 'bianbu'
+       prompts:
+       - 'Welcome to Bianbu Linux'
+
+       reset: false # Do not reset the device after booting 
+       timeout:
+          minutes: 10
+
