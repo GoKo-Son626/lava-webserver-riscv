@@ -2,7 +2,7 @@
 
 ## Setting up the PDU
 
-If you havent, read the [ADDING_RPI_4B.md](/lava-webserver-riscv/docs/ADDING_RPI_4B.md) for adding the first device in the LAVA server. It includes basic information needed to set up the first device in the LAVA.
+If you havent, read the [ADDING_RPI_4B.md](/docs/ADDING_RPI_4B.md) for adding the first device in the LAVA server. It includes basic information needed to set up the first device in the LAVA.
 
 For this documentation, I will be adding Banana Pi F3 as a device in the LAVA webserver.
 
